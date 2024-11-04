@@ -1,0 +1,859 @@
+library(car)
+library(lmtest)
+rm(list = ls())
+
+#Set a directory for the project#
+setwd("C:/Users/Jimwell/Desktop/MACEWAN FILES/Winter 2024/Econ 401 (Field Placement)/PortfolioProjects")
+
+#Uploading the 1996 dataset#
+data1996<-read.csv(file = "Census1996.csv")
+
+#Create a subset#
+data_sub1996<-subset(data1996, WAGESP>15 & AGEP>=24 & AGEP<=64 & DGREEP>=5 & DGREEP <=10 & LFACTP>=1 & LFACTP<=2 & COWP==1 & FPTWKP ==1)
+
+attach(data_sub1996)
+
+#Create binary values for the following#
+
+#Alberta Provinces#
+data_sub1996$Ontario<-ifelse(PROVP==35,1,0)
+data_sub1996$Newfoundland<-ifelse(PROVP==10,1,0)
+data_sub1996$PEI<-ifelse(PROVP==11,1,0)
+data_sub1996$NovaScotia<-ifelse(PROVP==12,1,0)
+data_sub1996$NewBrunswick<-ifelse(PROVP==13,1,0)
+data_sub1996$Quebec<-ifelse(PROVP==24,1,0)
+data_sub1996$Manitoba<-ifelse(PROVP==46,1,0)
+data_sub1996$Saskatchewan<-ifelse(PROVP==47,1,0)
+data_sub1996$Alberta<-ifelse(PROVP==48,1,0)
+data_sub1996$BC<-ifelse(PROVP==59,1,0)
+data_sub1996$YukonandNW<-ifelse(PROVP==60,1,0)
+
+#Metropolitan Area indicator#
+data_sub1996$MetroArea<-ifelse(CMAPUMFP==205 | CMAPUMFP==421| CMAPUMFP==462 | CMAPUMFP== 499 | CMAPUMFP==505 | CMAPUMFP== 532  | CMAPUMFP==535 | CMAPUMFP== 537 | CMAPUMFP== 539| CMAPUMFP==541| CMAPUMFP==555| CMAPUMFP==559| CMAPUMFP==599| CMAPUMFP==602| CMAPUMFP==799| CMAPUMFP==825| CMAPUMFP==835| CMAPUMFP==933| CMAPUMFP==935 ,1,0)
+
+#Gender#
+data_sub1996$Female<-ifelse(SEXP==1,1,0)
+data_sub1996$Male<-ifelse(SEXP==2,1,0)
+
+#Marital Status#
+data_sub1996$Divorced<-ifelse(MARSTLP==1,1,0)
+data_sub1996$Married<-ifelse(MARSTLP==2,1,0)
+data_sub1996$Separated<-ifelse(MARSTLP==3,1,0)
+data_sub1996$Single<-ifelse(MARSTLP==4,1,0)
+data_sub1996$Widowed<-ifelse(MARSTLP==5,1,0)
+
+#Immigrant and Canada Born indicator#
+data_sub1996$CanadaBorn1996<-ifelse(CITIZENP==1,1,0)
+data_sub1996$Immigrant1996<-ifelse(CITIZENP== 2 | CITIZENP== 3,1,0)
+
+#Immigration Age indicator#
+data_sub1996$Immig_age0_4<-ifelse(IMMIAGEP==1,1,0)
+data_sub1996$Immig_age5_12<-ifelse(IMMIAGEP==2,1,0)
+data_sub1996$Immig_age13_19<-ifelse(IMMIAGEP==3,1,0)
+data_sub1996$Immig_age20_24<-ifelse(IMMIAGEP==4,1,0)
+data_sub1996$Immig_age25_29<-ifelse(IMMIAGEP==5,1,0)
+data_sub1996$Immig_age30_34<-ifelse(IMMIAGEP==6,1,0)
+data_sub1996$Immig_age35_39<-ifelse(IMMIAGEP==7,1,0)
+data_sub1996$Immig_age40_44<-ifelse(IMMIAGEP==8,1,0)
+data_sub1996$Immig_age45_49<-ifelse(IMMIAGEP==9,1,0)
+data_sub1996$Immig_age50_54<-ifelse(IMMIAGEP==10,1,0)
+data_sub1996$Immig_age55_59<-ifelse(IMMIAGEP==11,1,0)
+data_sub1996$Immig_age60andover<-ifelse(IMMIAGEP==12,1,0)
+
+#Immigration Year Indicator#
+data_sub1996$YRimmig1960s<-ifelse(YRIMMIGP==8 | YRIMMIGP==9| YRIMMIGP==10| YRIMMIGP==11| YRIMMIGP==12| YRIMMIGP==13| YRIMMIGP==33,1,0)
+data_sub1996$YRimmig1970s<-ifelse(YRIMMIGP==14 | YRIMMIGP==15| YRIMMIGP==16| YRIMMIGP==17| YRIMMIGP==34,1,0)
+data_sub1996$YRimmig1980s<-ifelse(YRIMMIGP==18 | YRIMMIGP==19| YRIMMIGP==20| YRIMMIGP==21| YRIMMIGP==22| YRIMMIGP==23| YRIMMIGP==24| YRIMMIGP==25| YRIMMIGP==35,1,0)
+data_sub1996$YRimmig1990s<-ifelse(YRIMMIGP==26 | YRIMMIGP==27| YRIMMIGP==28| YRIMMIGP==29| YRIMMIGP==30| YRIMMIGP==31| YRIMMIGP==36,1,0)
+
+#Minority indicator#
+data_sub1996$NonMinority<-ifelse(VISMINP==5,1,0)
+
+#Language Indicator#
+data_sub1996$Bilingual<-ifelse(OLNP==3,1,0)
+
+#Education indicator#
+data_sub1996$UnivCertificate1996<-ifelse(DGREEP==5,1,0)
+data_sub1996$BachelorsDegree1996<-ifelse(DGREEP==6,1,0)
+data_sub1996$DiplomaAboveBA1996<-ifelse(DGREEP==7,1,0)
+data_sub1996$MedicalDegree1996<-ifelse(DGREEP==8,1,0)
+data_sub1996$Masters1996<-ifelse(DGREEP==9,1,0)
+data_sub1996$PhD1996<-ifelse(DGREEP==10,1,0)
+
+#Field of Study Indicator#
+data_sub1996$Educ_Counseling<-ifelse(DGMFSP==1,1,0)
+data_sub1996$Fine_Appliedarts<-ifelse(DGMFSP==2,1,0)
+data_sub1996$Humanities<-ifelse(DGMFSP==3,1,0)
+data_sub1996$Socialsci<-ifelse(DGMFSP==4,1,0)
+data_sub1996$Business_Commerce<-ifelse(DGMFSP==5,1,0)
+data_sub1996$Financialmanage<-ifelse(DGMFSP==6,1,0)
+data_sub1996$Indus_Indusmanage_Admin<-ifelse(DGMFSP==7,1,0)
+data_sub1996$Marketing_Retail_Sales<-ifelse(DGMFSP==8,1,0)
+data_sub1996$Secretarialscience<-ifelse(DGMFSP==9,1,0)
+data_sub1996$Agri_BioSci_Tech<-ifelse(DGMFSP==10,1,0)
+data_sub1996$Engineer_Appliedsci<-ifelse(DGMFSP==11,1,0)
+data_sub1996$Buildingtech<-ifelse(DGMFSP==12,1,0)
+data_sub1996$Dataprocess_Compsci<-ifelse(DGMFSP==13,1,0)
+data_sub1996$Electronic<-ifelse(DGMFSP==14,1,0)
+data_sub1996$Othengineer_Appliedtech<-ifelse(DGMFSP==15,1,0)
+data_sub1996$Nursing<-ifelse(DGMFSP==16,1,0)
+data_sub1996$Otherhealthsci<-ifelse(DGMFSP==17,1,0)
+data_sub1996$Math_Physicalsci<-ifelse(DGMFSP==18,1,0)
+data_sub1996$Other<-ifelse(DGMFSP==19,1,0)
+
+#Employment indicator#
+data_sub1996$Employed<-ifelse(COWP==1,1,0)
+
+#Occupational position indicator (NOC)#
+data_sub1996$SeniormanagerNOC<-ifelse(OCC91P==1,1,0)
+data_sub1996$Middle_othermanagerNOC<-ifelse(OCC91P==2,1,0)
+data_sub1996$ProNOC<-ifelse(OCC91P==3,1,0)
+data_sub1996$Semipro_TechnicianNOC<-ifelse(OCC91P==4,1,0)
+data_sub1996$SupervisorNOC<-ifelse(OCC91P==5,1,0)
+data_sub1996$CraftstradesNOC<-ifelse(OCC91P==6,1,0)
+data_sub1996$AdminNOC<-ifelse(OCC91P==7,1,0)
+data_sub1996$SkilledsalesNOC<-ifelse(OCC91P==8,1,0)
+data_sub1996$SkilledcraftsNOC<-ifelse(OCC91P==9,1,0)
+data_sub1996$ClericalpersonnelNOC<-ifelse(OCC91P==10,1,0)
+data_sub1996$Intermedsales_serviceNOC<-ifelse(OCC91P==11,1,0)
+data_sub1996$SemiskilledNOC<-ifelse(OCC91P==12,1,0)
+data_sub1996$OthersalesNOC<-ifelse(OCC91P==13,1,0)
+data_sub1996$OthermanualworkNOC<-ifelse(OCC91P==14,1,0)
+
+
+#Occupational position indicator (SOC)#
+data_sub1996$SeniormgmtSOC<-ifelse(SOC91P==1,1,0)
+data_sub1996$OthermgmtSOC<-ifelse(SOC91P==2,1,0)
+data_sub1996$Probusiness_FinanceSOC<-ifelse(SOC91P==3,1,0)
+data_sub1996$Finance_Secretary_AdminSOC<-ifelse(SOC91P==4,1,0)
+data_sub1996$ClericalSOC<-ifelse(SOC91P==5,1,0)
+data_sub1996$Natural_AppliedsciSOC<-ifelse(SOC91P==6,1,0)
+data_sub1996$HealthRNSOC<-ifelse(SOC91P==7,1,0)
+data_sub1996$HealthtechSOC<-ifelse(SOC91P==8,1,0)
+data_sub1996$SocSci_Govt_ReligSOC<-ifelse(SOC91P==9,1,0)
+data_sub1996$Teacher_ProffesorSOC<-ifelse(SOC91P==10,1,0)
+data_sub1996$Art_SportSOC<-ifelse(SOC91P==11,1,0)
+data_sub1996$Wholesale_InsuranceSOC<-ifelse(SOC91P==12,1,0)
+data_sub1996$RetailSOC<-ifelse(SOC91P==13,1,0)
+data_sub1996$Food_BeverageSOC<-ifelse(SOC91P==14,1,0)
+data_sub1996$ProtectiveservicesSOC<-ifelse(SOC91P==15,1,0)
+data_sub1996$ChildcareSOC<-ifelse(SOC91P==16,1,0)
+data_sub1996$TravelserviceSOC<-ifelse(SOC91P==17,1,0)
+data_sub1996$Contractors_tradesSOC<-ifelse(SOC91P==18,1,0)
+data_sub1996$Construction_tradesSOC<-ifelse(SOC91P==19,1,0)
+data_sub1996$OthertradesSOC<-ifelse(SOC91P==20,1,0)
+data_sub1996$Transport_EquipmentSOC<-ifelse(SOC91P==21,1,0)
+data_sub1996$Labourers_tradesSOC<-ifelse(SOC91P==22,1,0)
+data_sub1996$PrimaryindustriesSOC<-ifelse(SOC91P==23,1,0)
+data_sub1996$ManufacturingSOC<-ifelse(SOC91P==24,1,0)
+data_sub1996$Labourers_ProcessSOC<-ifelse(SOC91P==25,1,0)
+
+#Job INdustry Indicator#
+data_sub1996$AgricultureSIC<-ifelse(IND80P==1,1,0)
+data_sub1996$OtherprimaryindustrySIC<-ifelse(IND80P==2,1,0)
+data_sub1996$ManufacturingSIC<-ifelse(IND80P==3,1,0)
+data_sub1996$ConstructionSIC<-ifelse(IND80P==4,1,0)
+data_sub1996$TransportstorageSIC<-ifelse(IND80P==5,1,0)
+data_sub1996$CommunicationSIC<-ifelse(IND80P==6,1,0)
+data_sub1996$WholesaletradeSIC<-ifelse(IND80P==7,1,0)
+data_sub1996$RetailtradeSIC<-ifelse(IND80P==8,1,0)
+data_sub1996$Finance_Insurance_RealestateSIC<-ifelse(IND80P==9,1,0)
+data_sub1996$BusnservicesSIC<-ifelse(IND80P==10,1,0)
+data_sub1996$Govtserv_FederalSIC<-ifelse(IND80P==11,1,0)
+data_sub1996$Govtserv_OtherSIC<-ifelse(IND80P==12,1,0)
+data_sub1996$EducationalservicesSIC<-ifelse(IND80P==13,1,0)
+data_sub1996$Health_SocialservSIC<-ifelse(IND80P==14,1,0)
+data_sub1996$Accom_Food_BevSIC<-ifelse(IND80P==15,1,0)
+data_sub1996$OtherservicesSIC<-ifelse(IND80P==16,1,0)
+
+#Attach the new subsets#
+attach(data_sub1996)
+
+#Manipulated values or conditional values#
+data_sub1996$Immigrant_UnivCertif1996<-Immigrant1996*UnivCertificate1996
+data_sub1996$Immigrant_BA1996<-Immigrant1996*BachelorsDegree1996
+data_sub1996$Immigrant_DiplomaAboveBA1996<-Immigrant1996*DiplomaAboveBA1996
+data_sub1996$Immigrant_MedicalDegree1996<-Immigrant1996*MedicalDegree1996
+data_sub1996$Immigrant_Masters1996<-Immigrant1996*Masters1996
+data_sub1996$Immigrant_Phd1996<-Immigrant1996*PhD1996
+
+#Regression line#
+Regression1_1996NOC<-lm(log(WAGESP)~Immigrant_UnivCertif1996+
+                          Immigrant_DiplomaAboveBA1996+Immigrant_MedicalDegree1996+
+                          Immigrant_Masters1996+Immigrant_Phd1996+
+                          +Newfoundland+PEI+NovaScotia
+                        +NewBrunswick+Quebec+Manitoba+Saskatchewan+
+                          Alberta+BC+YukonandNW+MetroArea+Male+Divorced
+                        +Married+Separated+Widowed+Immigrant1996+
+                          Immig_age0_4+Immig_age5_12+Immig_age20_24+
+                          Immig_age25_29+Immig_age30_34+Immig_age35_39
+                        +Immig_age40_44+Immig_age45_49+Immig_age50_54+
+                          Immig_age55_59+Immig_age60andover+YRimmig1970s
+                        +YRimmig1980s+YRimmig1970s+Bilingual+UnivCertificate1996
+                        +DiplomaAboveBA1996+MedicalDegree1996+Masters1996+PhD1996+
+                          Educ_Counseling+Fine_Appliedarts+Humanities
+                        +Socialsci+Business_Commerce+Financialmanage
+                        +Indus_Indusmanage_Admin+Marketing_Retail_Sales
+                        +Secretarialscience+Agri_BioSci_Tech+Engineer_Appliedsci
+                        +Buildingtech+Nursing+Electronic+Othengineer_Appliedtech
+                        +Otherhealthsci+Math_Physicalsci+Middle_othermanagerNOC
+                        +ProNOC+Semipro_TechnicianNOC+SupervisorNOC+CraftstradesNOC
+                        +AdminNOC+SkilledsalesNOC+SkilledcraftsNOC+Intermedsales_serviceNOC
+                        +SemiskilledNOC+OthersalesNOC+OthermanualworkNOC+OtherprimaryindustrySIC
+                        +ManufacturingSIC+ConstructionSIC+TransportstorageSIC+CommunicationSIC+
+                          WholesaletradeSIC+RetailtradeSIC+Finance_Insurance_RealestateSIC+
+                          BusnservicesSIC+Govtserv_FederalSIC+Govtserv_OtherSIC+EducationalservicesSIC
+                        +Health_SocialservSIC+Accom_Food_BevSIC+OtherservicesSIC, data = data_sub1996)
+
+Wageregression1_1996<-summary(Regression1_1996NOC)
+Wageregression1_1996
+
+#Check for Multicollinearity#
+library(car)
+vif(Regression1_1996NOC)
+
+#Check for Heteroskedasticity
+library(lmtest)
+bptest(Regression1_1996NOC)
+
+
+
+
+# Same process for the 2001 census dataset#
+rm(list = ls())
+data2001<-read.csv(file = "Census2001.csv")
+data_sub2001<-subset(data2001, WAGESP>15 & AGEP>=24 & AGEP<=64 & DGREEP>=5 & DGREEP <=10 & LFACTP>=1 & LFACTP<=2 & COWP==1 & FPTWKP==1)
+
+data_sub2001$Ontario<-ifelse(data_sub2001$PROVP==35,1,0)
+data_sub2001$Newfoundland<-ifelse(data_sub2001$PROVP==10,1,0)
+data_sub2001$PEI<-ifelse(data_sub2001$PROVP==11,1,0)
+data_sub2001$NovaScotia<-ifelse(data_sub2001$PROVP==12,1,0)
+data_sub2001$NewBrunswick<-ifelse(data_sub2001$PROVP==13,1,0)
+data_sub2001$Quebec<-ifelse(data_sub2001$PROVP==24,1,0)
+data_sub2001$Manitoba<-ifelse(data_sub2001$PROVP==46,1,0)
+data_sub2001$Saskatchewan<-ifelse(data_sub2001$PROVP==47,1,0)
+data_sub2001$Alberta<-ifelse(data_sub2001$PROVP==48,1,0)
+data_sub2001$BC<-ifelse(data_sub2001$PROVP==59,1,0)
+data_sub2001$YukonandNW<-ifelse(data_sub2001$PROVP==60,1,0)
+
+data_sub2001$MetroArea<-ifelse(data_sub2001$CMAP==205 | data_sub2001$CMAP==421| data_sub2001$CMAP==462 | data_sub2001$CMAP== 499 | data_sub2001$CMAP==505 | data_sub2001$CMAP== 532  | data_sub2001$CMAP==535 | data_sub2001$CMAP== 537 | data_sub2001$CMAP== 539| data_sub2001$CMAP==541| data_sub2001$CMAP==555| data_sub2001$CMAP==559| data_sub2001$CMAP==599| data_sub2001$CMAP==602| data_sub2001$CMAP==799| data_sub2001$CMAP==825| data_sub2001$CMAP==835| data_sub2001$CMAP==933| data_sub2001$CMAP==935,1,0)
+
+data_sub2001$Female<-ifelse(data_sub2001$SEX==1,1,0)
+data_sub2001$Male<-ifelse(data_sub2001$SEX==2,1,0)
+
+data_sub2001$Divorced<-ifelse(data_sub2001$MARSTLP==1,1,0)
+data_sub2001$Married<-ifelse(data_sub2001$MARSTLP==2,1,0)
+data_sub2001$Separated<-ifelse(data_sub2001$MARSTLP==3,1,0)
+data_sub2001$Single<-ifelse(data_sub2001$MARSTLP==4,1,0)
+data_sub2001$Widowed<-ifelse(data_sub2001$MARSTLP==5,1,0)
+
+data_sub2001$CanadaBorn2001<-ifelse(data_sub2001$CITIZENP==1,1,0)
+data_sub2001$Immigrant2001<-ifelse(data_sub2001$CITIZENP== 2 | data_sub2001$CITIZENP== 3,1,0)
+
+data_sub2001$Immig_age0_4<-ifelse(data_sub2001$IMMIAGEP==1,1,0)
+data_sub2001$Immig_age5_12<-ifelse(data_sub2001$IMMIAGEP==2,1,0)
+data_sub2001$Immig_age13_19<-ifelse(data_sub2001$IMMIAGEP==3,1,0)
+data_sub2001$Immig_age20_24<-ifelse(data_sub2001$IMMIAGEP==4,1,0)
+data_sub2001$Immig_age25_29<-ifelse(data_sub2001$IMMIAGEP==5,1,0)
+data_sub2001$Immig_age30_34<-ifelse(data_sub2001$IMMIAGEP==6,1,0)
+data_sub2001$Immig_age35_39<-ifelse(data_sub2001$IMMIAGEP==7,1,0)
+data_sub2001$Immig_age40_44<-ifelse(data_sub2001$IMMIAGEP==8,1,0)
+data_sub2001$Immig_age45_49<-ifelse(data_sub2001$IMMIAGEP==9,1,0)
+data_sub2001$Immig_age50_54<-ifelse(data_sub2001$IMMIAGEP==10,1,0)
+data_sub2001$Immig_age55_59<-ifelse(data_sub2001$IMMIAGEP==11,1,0)
+data_sub2001$Immig_age60andover<-ifelse(data_sub2001$IMMIAGEP==12,1,0)
+
+
+data_sub2001$YRimmig1960s<-ifelse(data_sub2001$YRIMMIG==2,1,0)
+data_sub2001$YRimmig1970s<-ifelse(data_sub2001$YRIMMIG==3,1,0)
+data_sub2001$YRimmig1980s<-ifelse(data_sub2001$YRIMMIG==4,1,0)
+data_sub2001$YRimmig1990s<-ifelse(data_sub2001$YRIMMIG==5 | data_sub2001$YRIMMIG==6, 1,0)
+
+data_sub2001$NonMinority<-ifelse(data_sub2001$VISMINP==5,1,0)
+
+data_sub2001$Bilingual<-ifelse(data_sub2001$OLNP==3,1,0)
+
+data_sub2001$UnivCertificate2001<-ifelse(data_sub2001$DGREEP==5,1,0)
+data_sub2001$BachelorsDegree2001<-ifelse(data_sub2001$DGREEP==6,1,0)
+data_sub2001$DiplomaAboveBA2001<-ifelse(data_sub2001$DGREEP==7,1,0)
+data_sub2001$MedicalDegree2001<-ifelse(data_sub2001$DGREEP==8,1,0)
+data_sub2001$Masters2001<-ifelse(data_sub2001$DGREEP==9,1,0)
+data_sub2001$PhD2001<-ifelse(data_sub2001$DGREEP==10,1,0)
+
+
+data_sub2001$Educ_Counseling<-ifelse(data_sub2001$DGMFSP==1,1,0)
+data_sub2001$Fine_Appliedarts<-ifelse(data_sub2001$DGMFSP==2,1,0)
+data_sub2001$Humanities<-ifelse(data_sub2001$DGMFSP==3,1,0)
+data_sub2001$Socialsci<-ifelse(data_sub2001$DGMFSP==4,1,0)
+data_sub2001$Business_Commerce<-ifelse(data_sub2001$DGMFSP==5,1,0)
+data_sub2001$Financialmanage<-ifelse(data_sub2001$DGMFSP==6,1,0)
+data_sub2001$Indus_Indusmanage_Admin<-ifelse(data_sub2001$DGMFSP==7,1,0)
+data_sub2001$Marketing_Retail_Sales<-ifelse(data_sub2001$DGMFSP==8,1,0)
+data_sub2001$OfficeAdmin<-ifelse(data_sub2001$DGMFSP==9,1,0)
+data_sub2001$Agri_BioSci_Tech<-ifelse(data_sub2001$DGMFSP==10,1,0)
+data_sub2001$Engineer_Appliedsci<-ifelse(data_sub2001$DGMFSP==11,1,0)
+data_sub2001$Buildingtech<-ifelse(data_sub2001$DGMFSP==12,1,0)
+data_sub2001$Dataprocess_Compsci<-ifelse(data_sub2001$DGMFSP==13,1,0)
+data_sub2001$Electronic<-ifelse(data_sub2001$DGMFSP==14,1,0)
+data_sub2001$Othengineer_Appliedtech<-ifelse(data_sub2001$DGMFSP==15,1,0)
+data_sub2001$Nursing<-ifelse(data_sub2001$DGMFSP==16,1,0)
+data_sub2001$AlternativeMed<-ifelse(data_sub2001$DGMFSP==17,1,0)
+data_sub2001$Math_Physicalsci<-ifelse(data_sub2001$DGMFSP==18,1,0)
+
+data_sub2001$Employed<-ifelse(data_sub2001$COWP==1,1,0)
+
+data_sub2001$SeniormanagerNOC<-ifelse(data_sub2001$NOCHRDP==1,1,0)
+data_sub2001$Middle_othermanagerNOC<-ifelse(data_sub2001$NOCHRDP==2,1,0)
+data_sub2001$ProNOC<-ifelse(data_sub2001$NOCHRDP==3,1,0)
+data_sub2001$Semipro_TechnicianNOC<-ifelse(data_sub2001$NOCHRDP==4,1,0)
+data_sub2001$SupervisorNOC<-ifelse(data_sub2001$NOCHRDP==5,1,0)
+data_sub2001$SupervisorCraftstradesNOC<-ifelse(data_sub2001$NOCHRDP==6,1,0)
+data_sub2001$AdminNOC<-ifelse(data_sub2001$NOCHRDP==7,1,0)
+data_sub2001$SkilledsalesNOC<-ifelse(data_sub2001$NOCHRDP==8,1,0)
+data_sub2001$SkilledcraftsNOC<-ifelse(data_sub2001$NOCHRDP==9,1,0)
+data_sub2001$ClericalpersonnelNOC<-ifelse(data_sub2001$NOCHRDP==10,1,0)
+data_sub2001$Intermedsales_serviceNOC<-ifelse(data_sub2001$NOCHRDP==11,1,0)
+data_sub2001$SemiskilledNOC<-ifelse(data_sub2001$NOCHRDP==12,1,0)
+data_sub2001$OthersalesNOC<-ifelse(data_sub2001$NOCHRDP==13,1,0)
+data_sub2001$OthermanualworkNOC<-ifelse(data_sub2001$NOCHRDP==14,1,0)
+
+data_sub2001$SeniormgmtNOCS<-ifelse(data_sub2001$NOCS01P==1,1,0)
+data_sub2001$OthermgmtNOCS<-ifelse(data_sub2001$NOCS01P==2,1,0)
+data_sub2001$Probusiness_FinanceNOCS<-ifelse(data_sub2001$NOCS01P==3,1,0)
+data_sub2001$Finance_Secretary_AdminNOCS<-ifelse(data_sub2001$NOCS01P==4,1,0)
+data_sub2001$ClericalNOCS<-ifelse(data_sub2001$NOCS01P==5,1,0)
+data_sub2001$Natural_AppliedsciNOCS<-ifelse(data_sub2001$NOCS01P==6,1,0)
+data_sub2001$HealthRNNOCS<-ifelse(data_sub2001$NOCS01P==7,1,0)
+data_sub2001$HealthtechNOCS<-ifelse(data_sub2001$NOCS01P==8,1,0)
+data_sub2001$SocSci_Govt_ReligNOCS<-ifelse(data_sub2001$NOCS01P==9,1,0)
+data_sub2001$Teacher_ProffesorNOCS<-ifelse(data_sub2001$NOCS01P==10,1,0)
+data_sub2001$Art_SportNOCS<-ifelse(data_sub2001$NOCS01P==11,1,0)
+data_sub2001$Wholesale_InsuranceNOCS<-ifelse(data_sub2001$NOCS01P==12,1,0)
+data_sub2001$RetailNOCS<-ifelse(data_sub2001$NOCS01P==13,1,0)
+data_sub2001$Food_BeverageNOCS<-ifelse(data_sub2001$NOCS01P==14,1,0)
+data_sub2001$ProtectiveservicesNOCS<-ifelse(data_sub2001$NOCS01P==15,1,0)
+data_sub2001$ChildcareNOCS<-ifelse(data_sub2001$NOCS01P==16,1,0)
+data_sub2001$TravelserviceNOCS<-ifelse(data_sub2001$NOCS01P==17,1,0)
+data_sub2001$Contractors_tradesNOCS<-ifelse(data_sub2001$NOCS01P==18,1,0)
+data_sub2001$Construction_tradesNOCS<-ifelse(data_sub2001$NOCS01P==19,1,0)
+data_sub2001$OthertradesNOCS<-ifelse(data_sub2001$NOCS01P==20,1,0)
+data_sub2001$Transport_EquipmentNOCS<-ifelse(data_sub2001$NOCS01P==21,1,0)
+data_sub2001$Labourers_tradesNOCS<-ifelse(data_sub2001$NOCS01P==22,1,0)
+data_sub2001$PrimaryindustriesNOCS<-ifelse(data_sub2001$NOCS01P==23,1,0)
+data_sub2001$ManufacturingNOCS<-ifelse(data_sub2001$NOCS01P==24,1,0)
+data_sub2001$Labourers_ProcessNOCS<-ifelse(data_sub2001$NOCS01P==25,1,0)
+
+
+data_sub2001$AgricultureSIC<-ifelse(data_sub2001$IND80P==1,1,0)
+data_sub2001$OtherprimaryindustrySIC<-ifelse(data_sub2001$IND80P==2,1,0)
+data_sub2001$ManufacturingSIC<-ifelse(data_sub2001$IND80P==3,1,0)
+data_sub2001$ConstructionSIC<-ifelse(data_sub2001$IND80P==4,1,0)
+data_sub2001$TransportstorageSIC<-ifelse(data_sub2001$IND80P==5,1,0)
+data_sub2001$CommunicationSIC<-ifelse(data_sub2001$IND80P==6,1,0)
+data_sub2001$WholesaletradeSIC<-ifelse(data_sub2001$IND80P==7,1,0)
+data_sub2001$RetailtradeSIC<-ifelse(data_sub2001$IND80P==8,1,0)
+data_sub2001$Finance_Insurance_RealestateSIC<-ifelse(data_sub2001$IND80P==9,1,0)
+data_sub2001$BusnservicesSIC<-ifelse(data_sub2001$IND80P==10,1,0)
+data_sub2001$Govtserv_FederalSIC<-ifelse(data_sub2001$IND80P==11,1,0)
+data_sub2001$Govtserv_OtherSIC<-ifelse(data_sub2001$IND80P==12,1,0)
+data_sub2001$EducationalservicesSIC<-ifelse(data_sub2001$IND80P==13,1,0)
+data_sub2001$Health_SocialservSIC<-ifelse(data_sub2001$IND80P==14,1,0)
+data_sub2001$Accom_Food_BevSIC<-ifelse(data_sub2001$IND80P==15,1,0)
+data_sub2001$OtherservicesSIC<-ifelse(data_sub2001$IND80P==16,1,0)
+
+data_sub2001$AgricultureNAICS<-ifelse(data_sub2001$NAICSP==1,1,0)
+data_sub2001$MiningNAICS<-ifelse(data_sub2001$NAICSP==2,1,0)
+data_sub2001$UtilitiesNAICS<-ifelse(data_sub2001$NAICSP==3,1,0)
+data_sub2001$ConstructionNAICS<-ifelse(data_sub2001$NAICSP==4,1,0)
+data_sub2001$ManufacturingNAICS<-ifelse(data_sub2001$NAICSP==5,1,0)
+data_sub2001$WholesaleNAICS<-ifelse(data_sub2001$NAICSP==6,1,0)
+data_sub2001$RetailNAICS<-ifelse(data_sub2001$NAICSP==7,1,0)
+data_sub2001$TransportationNAICS<-ifelse(data_sub2001$NAICSP==8,1,0)
+data_sub2001$InformationIndustriesNAICS<-ifelse(data_sub2001$NAICSP==9,1,0)
+data_sub2001$Finance_InsuranceNAICS<-ifelse(data_sub2001$NAICSP==10,1,0)
+data_sub2001$RealEstateNAICS<-ifelse(data_sub2001$NAICSP==11,1,0)
+data_sub2001$Pro_TechServiceNAICS<-ifelse(data_sub2001$NAICSP==12,1,0)
+data_sub2001$ManagementofCompaniesNAICS<-ifelse(data_sub2001$NAICSP==13,1,0)
+data_sub2001$AdminandSupportNAICS<-ifelse(data_sub2001$NAICSP==14,1,0)
+data_sub2001$EducNAICS<-ifelse(data_sub2001$NAICSP==15,1,0)
+data_sub2001$HealthCareNAICS<-ifelse(data_sub2001$NAICSP==16,1,0)
+data_sub2001$ArtsandEntertainmentNAICS<-ifelse(data_sub2001$NAICSP==17,1,0)
+data_sub2001$AccomodationandFoodNAICS<-ifelse(data_sub2001$NAICSP==18,1,0)
+data_sub2001$OtherNAICS<-ifelse(data_sub2001$NAICSP==19,1,0)
+data_sub2001$PublicAdminNAICS<-ifelse(data_sub2001$NAICSP==20,1,0)
+
+attach(data_sub2001)
+
+data_sub2001$Immigrant_UnivCertif2001<-Immigrant2001*UnivCertificate2001
+data_sub2001$Immigrant_BA2001<-Immigrant2001*BachelorsDegree2001
+data_sub2001$Immigrant_DiplomaAboveBA2001<-Immigrant2001*DiplomaAboveBA2001
+data_sub2001$Immigrant_MedicalDegree2001<-Immigrant2001*MedicalDegree2001
+data_sub2001$Immigrant_Masters2001<-Immigrant2001*Masters2001
+data_sub2001$Immigrant_Phd2001<-Immigrant2001*PhD2001
+
+
+Regression1_2001<-lm(log(WAGESP)~Immigrant_UnivCertif2001+
+                       Immigrant_DiplomaAboveBA2001+Immigrant_MedicalDegree2001+
+                       Immigrant_Masters2001+Immigrant_Phd2001+Newfoundland+PEI+NovaScotia
+                     +NewBrunswick+Quebec+Manitoba+Saskatchewan+
+                       Alberta+BC+YukonandNW+MetroArea+Male+Divorced
+                     +Married+Separated+Widowed+Immigrant2001+
+                       Immig_age0_4+Immig_age5_12+Immig_age20_24+
+                       Immig_age25_29+Immig_age30_34+Immig_age35_39
+                     +Immig_age40_44+Immig_age45_49+Immig_age50_54+
+                       Immig_age55_59+Immig_age60andover+YRimmig1970s
+                     +YRimmig1980s+YRimmig1990s+Bilingual+UnivCertificate2001
+                     +DiplomaAboveBA2001+MedicalDegree2001+Masters2001+PhD2001+
+                       Educ_Counseling+Fine_Appliedarts+Humanities
+                     +Socialsci+Business_Commerce+Financialmanage
+                     +Indus_Indusmanage_Admin+Marketing_Retail_Sales
+                     +OfficeAdmin +Agri_BioSci_Tech+Engineer_Appliedsci
+                     +Buildingtech+Nursing+Electronic+Othengineer_Appliedtech
+                     +Math_Physicalsci+SeniormanagerNOC+Middle_othermanagerNOC
+                     +ProNOC+Semipro_TechnicianNOC+SupervisorNOC+SupervisorCraftstradesNOC
+                     +AdminNOC+SkilledsalesNOC+SkilledcraftsNOC+Intermedsales_serviceNOC
+                     +SemiskilledNOC+OthersalesNOC+OthermanualworkNOC+AgricultureNAICS
+                     +MiningNAICS+UtilitiesNAICS+ConstructionNAICS+ManufacturingNAICS+
+                       WholesaleNAICS+RetailNAICS + TransportationNAICS+ InformationIndustriesNAICS + 
+                       Finance_InsuranceNAICS + RealEstateNAICS + Pro_TechServiceNAICS + ManagementofCompaniesNAICS + 
+                       AdminandSupportNAICS + EducNAICS + HealthCareNAICS + ArtsandEntertainmentNAICS+
+                       AccomodationandFoodNAICS+ OtherNAICS+ PublicAdminNAICS, data = data_sub2001)
+
+wageregression2001<-summary(Regression1_2001)
+wageregression2001
+
+
+
+library(car)
+vif(Regression1_2001)
+
+library(lmtest)
+bptest(Regression1_2001)
+
+
+
+#Similar process for 2006 census dataset#
+
+rm(list=ls())
+data2006<-read.csv(file = "Census2006.csv")
+data_sub2006<-subset(data2006, WAGES>=15 &  AGEGRP>=9 & AGEGRP<=16 & HDGREE>=8 & HDGREE<=13 & LFACT>=1 & LFACT<=2 & COW==4 & FPTWK==1)
+
+
+data_sub2006$Ontario<-ifelse(data_sub2006$PR==35,1,0)
+data_sub2006$Newfoundland<-ifelse(data_sub2006$PR==10,1,0)
+data_sub2006$PEI<-ifelse(data_sub2006$PR==11,1,0)
+data_sub2006$NovaScotia<-ifelse(data_sub2006$PR==12,1,0)
+data_sub2006$NewBrunswick<-ifelse(data_sub2006$PR==13,1,0)
+data_sub2006$Quebec<-ifelse(data_sub2006$PR==24,1,0)
+data_sub2006$Manitoba<-ifelse(data_sub2006$PR==46,1,0)
+data_sub2006$Saskatchewan<-ifelse(data_sub2006$PR==47,1,0)
+data_sub2006$Alberta<-ifelse(data_sub2006$PR==48,1,0)
+data_sub2006$BC<-ifelse(data_sub2006$PR==59,1,0)
+data_sub2006$YukonandNW<-ifelse(data_sub2006$PR==60,1,0)
+
+data_sub2006$MetroArea<-ifelse(data_sub2006$CMA==205 | data_sub2006$CMA==421| data_sub2006$CMA==462 | data_sub2006$CMA== 499 | data_sub2006$CMA==505 | data_sub2006$CMA== 532  | data_sub2006$CMA==535 | data_sub2006$CMA== 537 | data_sub2006$CMA== 539| data_sub2006$CMA==541| data_sub2006$CMA==555| data_sub2006$CMA==559| data_sub2006$CMA==599| data_sub2006$CMA==602| data_sub2006$CMA==799| data_sub2006$CMA==825| data_sub2006$CMA==835| data_sub2006$CMA==933| data_sub2006$CMA==935,1,0)
+
+data_sub2006$Female<-ifelse(data_sub2006$SEX==1,1,0)
+data_sub2006$Male<-ifelse(data_sub2006$SEX==2,1,0)
+
+data_sub2006$Divorced<-ifelse(data_sub2006$MARST==1,1,0)
+data_sub2006$Married<-ifelse(data_sub2006$MARST==2,1,0)
+data_sub2006$Separated<-ifelse(data_sub2006$MARST==3,1,0)
+data_sub2006$Single<-ifelse(data_sub2006$MARST==4,1,0)
+data_sub2006$Widowed<-ifelse(data_sub2006$MARST==5,1,0)
+
+data_sub2006$CanadaBorn2006<-ifelse(data_sub2006$CITIZEN==1,1,0)
+data_sub2006$Immigrant2006<-ifelse(data_sub2006$CITIZEN== 2 | data_sub2006$CITIZEN== 3,1,0)
+
+data_sub2006$Immig_age0_4<-ifelse(data_sub2006$AGEIMM==1,1,0)
+data_sub2006$Immig_age5_9<-ifelse(data_sub2006$AGEIMM==2,1,0)
+data_sub2006$Immig_age10_14<-ifelse(data_sub2006$AGEIMM==3,1,0)
+data_sub2006$Immig_age15_19<-ifelse(data_sub2006$AGEIMM==4,1,0)
+data_sub2006$Immig_age20_24<-ifelse(data_sub2006$AGEIMM==5,1,0)
+data_sub2006$Immig_age25_29<-ifelse(data_sub2006$AGEIMM==6,1,0)
+data_sub2006$Immig_age30_34<-ifelse(data_sub2006$AGEIMM==7,1,0)
+data_sub2006$Immig_age35_39<-ifelse(data_sub2006$AGEIMM==8,1,0)
+data_sub2006$Immig_age40_44<-ifelse(data_sub2006$AGEIMM==9,1,0)
+data_sub2006$Immig_age45_49<-ifelse(data_sub2006$AGEIMM==10,1,0)
+data_sub2006$Immig_age50_54<-ifelse(data_sub2006$AGEIMM==11,1,0)
+data_sub2006$Immig_age55_59<-ifelse(data_sub2006$AGEIMM==12,1,0)
+data_sub2006$Immig_age60andover<-ifelse(data_sub2006$AGEIMM==13,1,0)
+
+
+data_sub2006$YRimmig1960s<-ifelse(data_sub2006$YRIMM==4 | data_sub2006$YRIMM==5 ,1,0)
+data_sub2006$YRimmig1970s<-ifelse(data_sub2006$YRIMM==6 | data_sub2006$YRIMM==7,1,0)
+data_sub2006$YRimmig1980s<-ifelse(data_sub2006$YRIMM==1980 |data_sub2006$YRIMM==1981 |data_sub2006$YRIMM==1982 |data_sub2006$YRIMM==1983 |data_sub2006$YRIMM==1984 |data_sub2006$YRIMM==1985 |data_sub2006$YRIMM==1986 |data_sub2006$YRIMM==1987 |data_sub2006$YRIMM==1988 |data_sub2006$YRIMM==1989,1,0)
+data_sub2006$YRimmig1990s<-ifelse(data_sub2006$YRIMM==1990 |data_sub2006$YRIMM==1991 |data_sub2006$YRIMM==1992 |data_sub2006$YRIMM==1993 |data_sub2006$YRIMM==1994 |data_sub2006$YRIMM==1995 |data_sub2006$YRIMM==1996 |data_sub2006$YRIMM==1997 |data_sub2006$YRIMM==1998 |data_sub2006$YRIMM==1999,1,0)
+data_sub2006$YRimmig2000s<-ifelse(data_sub2006$YRIMM==2000 |data_sub2006$YRIMM==2001 |data_sub2006$YRIMM==2002 |data_sub2006$YRIMM==2003 |data_sub2006$YRIMM==2004 |data_sub2006$YRIMM==2005 |data_sub2006$YRIMM==2006,1,0)
+
+data_sub2006$NonMinority<-ifelse(data_sub2006$VISMIN==13,1,0)
+
+data_sub2006$Bilingual<-ifelse(data_sub2006$KOL==3,1,0)
+
+data_sub2006$UnivCertificate2006<-ifelse(data_sub2006$HDGREE==8,1,0)
+data_sub2006$BachelorsDegree2006<-ifelse(data_sub2006$HDGREE==9,1,0)
+data_sub2006$DiplomaAboveBA2006<-ifelse(data_sub2006$HDGREE==10,1,0)
+data_sub2006$MedicalDegree2006<-ifelse(data_sub2006$HDGREE==11,1,0)
+data_sub2006$Masters2006<-ifelse(data_sub2006$HDGREE==12,1,0)
+data_sub2006$PhD2006<-ifelse(data_sub2006$HDGREE==13,1,0)
+
+data_sub2006$EducCIP<-ifelse(data_sub2006$CIP==1,1,0)
+data_sub2006$Visual_performingartsCIP<-ifelse(data_sub2006$CIP==2,1,0)
+data_sub2006$HumanitiesCIP<-ifelse(data_sub2006$CIP==3,1,0)
+data_sub2006$SocialsciCIP<-ifelse(data_sub2006$CIP==4,1,0)
+data_sub2006$Business_CommerceCIP<-ifelse(data_sub2006$CIP==5,1,0)
+data_sub2006$PhysicalandlifesciCIP<-ifelse(data_sub2006$CIP==6,1,0)
+data_sub2006$Math_computerCIP<-ifelse(data_sub2006$CIP==7,1,0)
+data_sub2006$ArchitectureCIP<-ifelse(data_sub2006$CIP==8,1,0)
+data_sub2006$AgricultureCIP<-ifelse(data_sub2006$CIP==9,1,0)
+data_sub2006$Health_parks_recreationCIP<-ifelse(data_sub2006$CIP==10,1,0)
+data_sub2006$Personal_ProtectCIP<-ifelse(data_sub2006$CIP==11,1,0)
+
+
+data_sub2006$Educ_Counseling<-ifelse(data_sub2006$MFS==1,1,0)
+data_sub2006$Fine_Appliedarts<-ifelse(data_sub2006$MFS==2,1,0)
+data_sub2006$Humanities<-ifelse(data_sub2006$MFS==3,1,0)
+data_sub2006$Socialsci<-ifelse(data_sub2006$MFS==4,1,0)
+data_sub2006$Business_Commerce<-ifelse(data_sub2006$MFS==5,1,0)
+data_sub2006$AgriculturalSciences<-ifelse(data_sub2006$MFS==6,1,0)
+data_sub2006$Engineering<-ifelse(data_sub2006$MFS==7,1,0)
+data_sub2006$AppliedScience_tech<-ifelse(data_sub2006$MFS==8,1,0)
+data_sub2006$HealthProfessions<-ifelse(data_sub2006$MFS==9,1,0)
+data_sub2006$Math_computer<-ifelse(data_sub2006$MFS==10,1,0)
+
+
+data_sub2006$Employed<-ifelse(data_sub2006$COW==1,1,0)
+
+data_sub2006$SeniormanagerNOC<-ifelse(data_sub2006$NOCHRD==1,1,0)
+data_sub2006$Middle_othermanagerNOC<-ifelse(data_sub2006$NOCHRD==2,1,0)
+data_sub2006$ProNOC<-ifelse(data_sub2006$NOCHRD==3,1,0)
+data_sub2006$Semipro_TechnicianNOC<-ifelse(data_sub2006$NOCHRD==4,1,0)
+data_sub2006$SupervisorNOC<-ifelse(data_sub2006$NOCHRD==5,1,0)
+data_sub2006$SupervisorCraftstradesNOC<-ifelse(data_sub2006$NOCHRD==6,1,0)
+data_sub2006$AdminNOC<-ifelse(data_sub2006$NOCHRD==7,1,0)
+data_sub2006$SkilledsalesNOC<-ifelse(data_sub2006$NOCHRD==8,1,0)
+data_sub2006$SkilledcraftsNOC<-ifelse(data_sub2006$NOCHRD==9,1,0)
+data_sub2006$ClericalpersonnelNOC<-ifelse(data_sub2006$NOCHRD==10,1,0)
+data_sub2006$Intermedsales_servicNOCe<-ifelse(data_sub2006$NOCHRD==11,1,0)
+data_sub2006$SemiskilledNOC<-ifelse(data_sub2006$NOCHRD==12,1,0)
+data_sub2006$OthersalesNOC<-ifelse(data_sub2006$NOCHRD==13,1,0)
+data_sub2006$OthermanualworkNOC<-ifelse(data_sub2006$NOCHRD==14,1,0)
+
+data_sub2006$SeniormgmtNOCS<-ifelse(data_sub2006$NOCS==1,1,0)
+data_sub2006$OthermgmtNOCS<-ifelse(data_sub2006$NOCS==2,1,0)
+data_sub2006$Probusiness_FinanceNOCS<-ifelse(data_sub2006$NOCS==3,1,0)
+data_sub2006$Finance_Secretary_AdminNOCS<-ifelse(data_sub2006$NOCS==4,1,0)
+data_sub2006$ClericalNOCS<-ifelse(data_sub2006$NOCS==5,1,0)
+data_sub2006$Natural_AppliedsciNOCS<-ifelse(data_sub2006$NOCS==6,1,0)
+data_sub2006$HealthRNNOCS<-ifelse(data_sub2006$NOCS==7,1,0)
+data_sub2006$HealthtechNOCS<-ifelse(data_sub2006$NOCS==8,1,0)
+data_sub2006$SocSci_Govt_ReligNOCS<-ifelse(data_sub2006$NOCS==9,1,0)
+data_sub2006$Teacher_ProffesorNOCS<-ifelse(data_sub2006$NOCS==10,1,0)
+data_sub2006$Art_SportNOCS<-ifelse(data_sub2006$NOCS==11,1,0)
+data_sub2006$Wholesale_InsuranceNOCS<-ifelse(data_sub2006$NOCS==12,1,0)
+data_sub2006$RetailNOCS<-ifelse(data_sub2006$NOCS==13,1,0)
+data_sub2006$Food_BeverageNOCS<-ifelse(data_sub2006$NOCS==14,1,0)
+data_sub2006$ProtectiveservicesNOCS<-ifelse(data_sub2006$NOCS==15,1,0)
+data_sub2006$ChildcareNOCS<-ifelse(data_sub2006$NOCS==16,1,0)
+data_sub2006$TravelserviceNOCS<-ifelse(data_sub2006$NOCS==17,1,0)
+data_sub2006$Contractors_tradesNOCS<-ifelse(data_sub2006$NOCS==18,1,0)
+data_sub2006$Construction_tradesNOCS<-ifelse(data_sub2006$NOCS==19,1,0)
+data_sub2006$OthertradesNOCS<-ifelse(data_sub2006$NOCS==20,1,0)
+data_sub2006$Transport_EquipmentNOCS<-ifelse(data_sub2006$NOCS==21,1,0)
+data_sub2006$Labourers_tradesNOCS<-ifelse(data_sub2006$NOCS==22,1,0)
+data_sub2006$PrimaryindustriesNOCS<-ifelse(data_sub2006$NOCS==23,1,0)
+data_sub2006$ManufacturingNOCS<-ifelse(data_sub2006$NOCS==24,1,0)
+data_sub2006$Labourers_ProcessNOCS<-ifelse(data_sub2006$NOCS==25,1,0)
+
+data_sub2006$AgricultureNAICS<-ifelse(data_sub2006$NAICS==1,1,0)
+data_sub2006$MiningNAICS<-ifelse(data_sub2006$NAICS==2,1,0)
+data_sub2006$UtilitiesNAICS<-ifelse(data_sub2006$NAICS==3,1,0)
+data_sub2006$ConstructionNAICS<-ifelse(data_sub2006$NAICS==4,1,0)
+data_sub2006$ManufacturingNAICS<-ifelse(data_sub2006$NAICS==5,1,0)
+data_sub2006$WholesaleNAICS<-ifelse(data_sub2006$NAICS==6,1,0)
+data_sub2006$RetailNAICS<-ifelse(data_sub2006$NAICS==7,1,0)
+data_sub2006$TransportationNAICS<-ifelse(data_sub2006$NAICS==8,1,0)
+data_sub2006$InformationIndustriesNAICS<-ifelse(data_sub2006$NAICS==9,1,0)
+data_sub2006$Finance_InsuranceNAICS<-ifelse(data_sub2006$NAICS==10,1,0)
+data_sub2006$RealEstateNAICS<-ifelse(data_sub2006$NAICS==11,1,0)
+data_sub2006$Pro_TechServiceNAICS<-ifelse(data_sub2006$NAICS==12,1,0)
+data_sub2006$ManagementofCompaniesNAICS<-ifelse(data_sub2006$NAICS==13,1,0)
+data_sub2006$AdminandSupportNAICS<-ifelse(data_sub2006$NAICS==14,1,0)
+data_sub2006$EducNAICS<-ifelse(data_sub2006$NAICS==15,1,0)
+data_sub2006$HealthCareNAICS<-ifelse(data_sub2006$NAICS==16,1,0)
+data_sub2006$ArtsandEntertainmentNAICS<-ifelse(data_sub2006$NAICS==17,1,0)
+data_sub2006$AccomodationandFoodNAICS<-ifelse(data_sub2006$NAICS==18,1,0)
+data_sub2006$OtherNAICS<-ifelse(data_sub2006$NAICS==19,1,0)
+data_sub2006$PublicAdminNAICS<-ifelse(data_sub2006$NAICS==20,1,0)
+
+
+attach(data_sub2006)
+
+data_sub2006$Immigrant_UnivCertif2006<-Immigrant2006*UnivCertificate2006
+data_sub2006$Immigrant_BA2006<-Immigrant2006*BachelorsDegree2006 
+data_sub2006$Immigrant_DiplomaAboveBA2006<-Immigrant2006*DiplomaAboveBA2006
+data_sub2006$Immigrant_MedicalDegree2006<-Immigrant2006*MedicalDegree2006
+data_sub2006$Immigrant_Masters2006<-Immigrant2006*Masters2006
+data_sub2006$Immigrant_Phd2006<-Immigrant2006*PhD2006
+
+
+Regression1_2006<-lm(log(WAGES)~Immigrant_UnivCertif2006+Immigrant_DiplomaAboveBA2006
+                     +Immigrant_MedicalDegree2006+Immigrant_Masters2006+
+                       Immigrant_Phd2006+Newfoundland+PEI+NovaScotia
+                     +NewBrunswick+Quebec+Manitoba+Saskatchewan+
+                       Alberta+BC+YukonandNW+MetroArea+Male+Divorced
+                     +Married+Separated+Widowed+Immigrant2006+
+                       Immig_age0_4+Immig_age5_9+Immig_age10_14+Immig_age20_24+
+                       Immig_age25_29+Immig_age30_34+Immig_age35_39
+                     +Immig_age40_44+Immig_age45_49+Immig_age50_54+
+                       Immig_age55_59+Immig_age60andover+YRimmig1970s
+                     +YRimmig1980s+YRimmig1990s+
+                       YRimmig2000s+Bilingual+UnivCertificate2006
+                     +DiplomaAboveBA2006+MedicalDegree2006+Masters2006+PhD2006+
+                       EducCIP+Visual_performingartsCIP+HumanitiesCIP
+                     +SocialsciCIP+Business_Commerce+PhysicalandlifesciCIP
+                     +Math_computerCIP+ArchitectureCIP+AgricultureCIP
+                     +Health_parks_recreationCIP+Personal_ProtectCIP
+                     +SeniormgmtNOCS+OthermgmtNOCS+Probusiness_FinanceNOCS
+                     +Finance_Secretary_AdminNOCS+ClericalNOCS+Natural_AppliedsciNOCS
+                     +HealthRNNOCS+HealthtechNOCS+SocSci_Govt_ReligNOCS+Teacher_ProffesorNOCS
+                     +Art_SportNOCS+Wholesale_InsuranceNOCS+RetailNOCS+Food_BeverageNOCS
+                     +ProtectiveservicesNOCS+ChildcareNOCS+TravelserviceNOCS
+                     +Contractors_tradesNOCS+Construction_tradesNOCS+OthertradesNOCS
+                     +Transport_EquipmentNOCS+Labourers_tradesNOCS+PrimaryindustriesNOCS
+                     +ManufacturingNOCS+Labourers_ProcessNOCS
+                     +AgricultureNAICS +MiningNAICS+UtilitiesNAICS+ConstructionNAICS+ManufacturingNAICS+
+                       WholesaleNAICS+RetailNAICS + TransportationNAICS+ InformationIndustriesNAICS + 
+                       Finance_InsuranceNAICS + RealEstateNAICS + Pro_TechServiceNAICS + ManagementofCompaniesNAICS + 
+                       AdminandSupportNAICS + EducNAICS + HealthCareNAICS + ArtsandEntertainmentNAICS+
+                       AccomodationandFoodNAICS+ OtherNAICS+ PublicAdminNAICS, data = data_sub2006)
+
+Wageregression2006<-summary(Regression1_2006)          
+Wageregression2006
+
+
+library(car)
+vif(Regression1_2006)
+
+library(lmtest)
+bptest(Regression1_2006)
+
+
+
+
+#Lastly would be the 2016 census dataset#
+
+rm(list=ls())
+data2016<-read.csv(file = "Census2016.csv")
+data_sub2016<-subset(data2016, Wages>=15 &  AGEGRP>=9 & AGEGRP<=16& HDGREE>=8 & HDGREE<=13 & LFACT>=1 & LFACT<=2 & COW==1 & FPTWK==1)
+
+
+data_sub2016$Ontario<-ifelse(data_sub2016$PR==35,1,0)
+data_sub2016$Newfoundland<-ifelse(data_sub2016$PR==10,1,0)
+data_sub2016$PEI<-ifelse(data_sub2016$PR==11,1,0)
+data_sub2016$NovaScotia<-ifelse(data_sub2016$PR==12,1,0)
+data_sub2016$NewBrunswick<-ifelse(data_sub2016$PR==13,1,0)
+data_sub2016$Quebec<-ifelse(data_sub2016$PR==24,1,0)
+data_sub2016$Manitoba<-ifelse(data_sub2016$PR==46,1,0)
+data_sub2016$Saskatchewan<-ifelse(data_sub2016$PR==47,1,0)
+data_sub2016$Alberta<-ifelse(data_sub2016$PR==48,1,0)
+data_sub2016$BC<-ifelse(data_sub2016$PR==59,1,0)
+data_sub2016$NorthernCanada<-ifelse(data_sub2016$PR==70,1,0)
+
+data_sub2016$MetroArea<-ifelse(data_sub2016$CMA==205 | data_sub2016$CMA==399 | data_sub2016$CMA==421 | data_sub2016$CMA==462 | data_sub2016$CMA==499 | data_sub2016$CMA==505| data_sub2016$CMA==532 | data_sub2016$CMA==535 | data_sub2016$CMA== 537 | data_sub2016$CMA== 539| data_sub2016$CMA==541| data_sub2016$CMA==555| data_sub2016$CMA==559| data_sub2016$CMA==577 | data_sub2016$CMA==588| data_sub2016$CMA==599| data_sub2016$CMA==602| data_sub2016$CMA==799| data_sub2016$CMA==825| data_sub2016$CMA==835| data_sub2016$CMA==933| data_sub2016$CMA==935 |data_sub2016$CMA==988,1,0)
+
+data_sub2016$Female<-ifelse(data_sub2016$Sex==1,1,0)
+data_sub2016$Male<-ifelse(data_sub2016$Sex==2,1,0)
+
+data_sub2016$Divorced<-ifelse(data_sub2016$MarStH==5,1,0)
+data_sub2016$Married<-ifelse(data_sub2016$MarStH==2,1,0)
+data_sub2016$Separated<-ifelse(data_sub2016$MarStH==4,1,0)
+data_sub2016$Single<-ifelse(data_sub2016$MarStH==1,1,0)
+data_sub2016$Widowed<-ifelse(data_sub2016$MarStH==6,1,0)
+data_sub2016$CommonLaw<-ifelse(data_sub2016$MarStH==3,1,0)
+
+data_sub2016$CanadaBorn2016<-ifelse(data_sub2016$Citizen==1,1,0)
+data_sub2016$Immigrant2016<-ifelse(data_sub2016$Citizen== 2 | data_sub2016$Citizen== 3,1,0)
+
+data_sub2016$Immig_age0_4<-ifelse(data_sub2016$AGEIMM==1,1,0)
+data_sub2016$Immig_age5_9<-ifelse(data_sub2016$AGEIMM==2,1,0)
+data_sub2016$Immig_age10_14<-ifelse(data_sub2016$AGEIMM==3,1,0)
+data_sub2016$Immig_age15_19<-ifelse(data_sub2016$AGEIMM==4,1,0)
+data_sub2016$Immig_age20_24<-ifelse(data_sub2016$AGEIMM==5,1,0)
+data_sub2016$Immig_age25_29<-ifelse(data_sub2016$AGEIMM==6,1,0)
+data_sub2016$Immig_age30_34<-ifelse(data_sub2016$AGEIMM==7,1,0)
+data_sub2016$Immig_age35_39<-ifelse(data_sub2016$AGEIMM==8,1,0)
+data_sub2016$Immig_age40_44<-ifelse(data_sub2016$AGEIMM==9,1,0)
+data_sub2016$Immig_age45_49<-ifelse(data_sub2016$AGEIMM==10,1,0)
+data_sub2016$Immig_age50_54<-ifelse(data_sub2016$AGEIMM==11,1,0)
+data_sub2016$Immig_age55_59<-ifelse(data_sub2016$AGEIMM==12,1,0)
+data_sub2016$Immig_age60andover<-ifelse(data_sub2016$AGEIMM==13,1,0)
+
+
+data_sub2016$YRimmig1960s<-ifelse(data_sub2016$YRIMM==3 | data_sub2016$YRIMM==4 ,1,0)
+data_sub2016$YRimmig1970s<-ifelse(data_sub2016$YRIMM==5 | data_sub2016$YRIMM==6,1,0)
+data_sub2016$YRimmig1980s<-ifelse(data_sub2016$YRIMM==7 | data_sub2016$YRIMM==8 ,1,0)
+data_sub2016$YRimmig1990s<-ifelse(data_sub2016$YRIMM==1990 |data_sub2016$YRIMM==1991 |data_sub2016$YRIMM==1992 |data_sub2016$YRIMM==1993 |data_sub2016$YRIMM==1994 |data_sub2016$YRIMM==1995 |data_sub2016$YRIMM==1996 |data_sub2016$YRIMM==1997 |data_sub2016$YRIMM==1998 |data_sub2016$YRIMM==1999,1,0)
+data_sub2016$YRimmig2000s<-ifelse(data_sub2016$YRIMM==2000 |data_sub2016$YRIMM==2001 |data_sub2016$YRIMM==2002 |data_sub2016$YRIMM==2003 |data_sub2016$YRIMM==2004 |data_sub2016$YRIMM==2005 |data_sub2016$YRIMM==2006,1,0)
+data_sub2016$YRimmig2010s<-ifelse(data_sub2016$YRIMM==2010 |data_sub2016$YRIMM==2011 |data_sub2016$YRIMM==2012 |data_sub2016$YRIMM==2013 |data_sub2016$YRIMM==2014 |data_sub2016$YRIMM==2015 |data_sub2016$YRIMM==2016,1,0)
+
+data_sub2016$NonMinority<-ifelse(data_sub2016$VisMin==13,1,0)
+
+data_sub2016$Bilingual<-ifelse(data_sub2016$KOL==3,1,0)
+
+data_sub2016$UnivCertificate2016<-ifelse(data_sub2016$HDGREE==8,1,0)
+data_sub2016$BachelorsDegree2016<-ifelse(data_sub2016$HDGREE==9,1,0)
+data_sub2016$DiplomaAboveBA2016<-ifelse(data_sub2016$HDGREE==10,1,0)
+data_sub2016$MedicalDegree2016<-ifelse(data_sub2016$HDGREE==11,1,0)
+data_sub2016$Masters2016<-ifelse(data_sub2016$HDGREE==12,1,0)
+data_sub2016$PhD2016<-ifelse(data_sub2016$HDGREE==13,1,0)
+
+data_sub2016$EducCIP<-ifelse(data_sub2016$CIP2011==1,1,0)
+data_sub2016$Visual_performingartsCIP<-ifelse(data_sub2016$CIP2011==2,1,0)
+data_sub2016$HumanitiesCIP<-ifelse(data_sub2016$CIP2011==3,1,0)
+data_sub2016$SocialsciCIP<-ifelse(data_sub2016$CIP2011==4,1,0)
+data_sub2016$Business_CommerceCIP<-ifelse(data_sub2016$CIP2011==5,1,0)
+data_sub2016$PhysicalandlifesciCIP<-ifelse(data_sub2016$CIP2011==6,1,0)
+data_sub2016$Math_computerCIP<-ifelse(data_sub2016$CIP2011==7,1,0)
+data_sub2016$ArchitectureCIP<-ifelse(data_sub2016$CIP2011==8,1,0)
+data_sub2016$AgricultureCIP<-ifelse(data_sub2016$CIP2011==9,1,0)
+data_sub2016$Health_parks_recreationCIP<-ifelse(data_sub2016$CIP2011==10,1,0)
+data_sub2016$Personal_ProtectCIP<-ifelse(data_sub2016$CIP2011==11,1,0)
+
+
+data_sub2016$SciencetechNonstem<-ifelse(data_sub2016$CIP2011_STEM_SUM==1,1,0)
+data_sub2016$EngineeringNonstem<-ifelse(data_sub2016$CIP2011_STEM_SUM==2,1,0)
+data_sub2016$MathNonstem<-ifelse(data_sub2016$CIP2011_STEM_SUM==3,1,0)
+data_sub2016$BusinessadNonstem<-ifelse(data_sub2016$CIP2011_STEM_SUM==4,1,0)
+data_sub2016$ArtsandHumanitiesNonstem<-ifelse(data_sub2016$CIP2011_STEM_SUM==5,1,0)
+data_sub2016$SocandBehaveScienceNonstem<-ifelse(data_sub2016$CIP2011_STEM_SUM==6,1,0)
+data_sub2016$LegalstudiesNonstem<-ifelse(data_sub2016$CIP2011_STEM_SUM==7,1,0)
+data_sub2016$HealthCareNonstem<-ifelse(data_sub2016$CIP2011_STEM_SUM==8,1,0)
+data_sub2016$EducationNonstem<-ifelse(data_sub2016$CIP2011_STEM_SUM==9,1,0)
+data_sub2016$TradeServicesNonstem<-ifelse(data_sub2016$CIP2011_STEM_SUM==10,1,0)
+
+
+data_sub2016$Employed<-ifelse(data_sub2016$COW==1,1,0)
+
+data_sub2016$Management<-ifelse(data_sub2016$NOCS==1,1,0)
+data_sub2016$BusinessFinanceandAdmin<-ifelse(data_sub2016$NOCS==2,1,0)
+data_sub2016$NaturalAppliesScience<-ifelse(data_sub2016$NOCS==3,1,0)
+data_sub2016$HealthOccup<-ifelse(data_sub2016$NOCS==4,1,0)
+data_sub2016$Sociascience<-ifelse(data_sub2016$NOCS==5,1,0)
+data_sub2016$ArtCulture<-ifelse(data_sub2016$NOCS==6,1,0)
+data_sub2016$SalesandService<-ifelse(data_sub2016$NOCS==7,1,0)
+data_sub2016$TradesandTransport<-ifelse(data_sub2016$NOCS==8,1,0)
+data_sub2016$PrimaryIndustry<-ifelse(data_sub2016$NOCS==9,1,0)
+data_sub2016$Processingmanufacturing<-ifelse(data_sub2016$NOCS==10,1,0)
+
+
+data_sub2016$SeniormanagerNOC<-ifelse(data_sub2016$NOC16==1,1,0)
+data_sub2016$SpecializedmiddlemanagerNOC<-ifelse(data_sub2016$NOC16==2,1,0)
+data_sub2016$MiddlemanagementRetailNOC<-ifelse(data_sub2016$NOC16==3,1,0)
+data_sub2016$MiddlemanagementTradesNOC<-ifelse(data_sub2016$NOC16==4,1,0)
+data_sub2016$ProBusinessFinanceNOC<-ifelse(data_sub2016$NOC16==5,1,0)
+data_sub2016$AdminFinanceSupervisorNOC<-ifelse(data_sub2016$NOC16==6,1,0)
+data_sub2016$FinanceInsuranceNOC<-ifelse(data_sub2016$NOC16==7,1,0)
+data_sub2016$OfficesupportNOC<-ifelse(data_sub2016$NOC16==8,1,0)
+data_sub2016$ProfessionaloccuptechscienceNOC<-ifelse(data_sub2016$NOC16==9,1,0)
+data_sub2016$TechnicaloccuptechscienceNOC<-ifelse(data_sub2016$NOC16==10,1,0)
+data_sub2016$ProfessionalhealthNOC<-ifelse(data_sub2016$NOC16==11,1,0)
+data_sub2016$TechnicalandassistinghealthNOC<-ifelse(data_sub2016$NOC16==12,1,0)
+data_sub2016$ProfessionalEducNOC<-ifelse(data_sub2016$NOC16==13,1,0)
+data_sub2016$ProfessionalLawNOC<-ifelse(data_sub2016$NOC16==14,1,0)
+data_sub2016$ParaprofessionalLegalNOC<-ifelse(data_sub2016$NOC16==15,1,0)
+data_sub2016$PublicProtectionNOC<-ifelse(data_sub2016$NOC16==16,1,0)
+data_sub2016$ProfessionalArtandCultureNOC<-ifelse(data_sub2016$NOC16==17,1,0)
+data_sub2016$RetailsupervisorNOC<-ifelse(data_sub2016$NOC16==18,1,0)
+data_sub2016$ServicesupervisorNOC<-ifelse(data_sub2016$NOC16==19,1,0)
+data_sub2016$SalesRepNOC<-ifelse(data_sub2016$NOC16==20,1,0)
+data_sub2016$ServiceRepNOC<-ifelse(data_sub2016$NOC16==21,1,0)
+data_sub2016$SalesSupportoccupNOC<-ifelse(data_sub2016$NOC16==22,1,0)
+data_sub2016$ServicesupportNOC<-ifelse(data_sub2016$NOC16==23,1,0)
+data_sub2016$IndustrialtradesNOC<-ifelse(data_sub2016$NOC16==24,1,0)
+data_sub2016$MaintenancetradesNOC<-ifelse(data_sub2016$NOC16==25,1,0)
+data_sub2016$ConstructionlabourNOC<-ifelse(data_sub2016$NOC16==26,1,0)
+data_sub2016$HeavyequipmentoperationNOC<-ifelse(data_sub2016$NOC16==27,1,0)
+data_sub2016$SupervisorsTechnicalNOC<-ifelse(data_sub2016$NOC16==28,1,0)
+data_sub2016$SupervisorsManufacturingNOC<-ifelse(data_sub2016$NOC16==29,1,0)
+data_sub2016$AssemblersManufacturingNOC<-ifelse(data_sub2016$NOC16==30,1,0)
+
+
+
+
+data_sub2016$AgricultureNAICS<-ifelse(data_sub2016$NAICS==1,1,0)
+data_sub2016$MiningNAICS<-ifelse(data_sub2016$NAICS==2,1,0)
+data_sub2016$UtilitiesNAICS<-ifelse(data_sub2016$NAICS==3,1,0)
+data_sub2016$ConstructionNAICS<-ifelse(data_sub2016$NAICS==4,1,0)
+data_sub2016$ManufacturingNAICS<-ifelse(data_sub2016$NAICS==5,1,0)
+data_sub2016$WholesaleNAICS<-ifelse(data_sub2016$NAICS==6,1,0)
+data_sub2016$RetailNAICS<-ifelse(data_sub2016$NAICS==7,1,0)
+data_sub2016$TransportationNAICS<-ifelse(data_sub2016$NAICS==8,1,0)
+data_sub2016$InformationIndustriesNAICS<-ifelse(data_sub2016$NAICS==9,1,0)
+data_sub2016$Finance_InsuranceNAICS<-ifelse(data_sub2016$NAICS==10,1,0)
+data_sub2016$RealEstateNAICS<-ifelse(data_sub2016$NAICS==11,1,0)
+data_sub2016$Pro_TechServiceNAICS<-ifelse(data_sub2016$NAICS==12,1,0)
+data_sub2016$WasteManagementNAICS<-ifelse(data_sub2016$NAICS==13,1,0)
+data_sub2016$EducNAICS<-ifelse(data_sub2016$NAICS==14,1,0)
+data_sub2016$HealthCareNAICS<-ifelse(data_sub2016$NAICS==15,1,0)
+data_sub2016$ArtsandEntertainmentNAICS<-ifelse(data_sub2016$NAICS==16,1,0)
+data_sub2016$AccomodationandFoodNAICS<-ifelse(data_sub2016$NAICS==17,1,0)
+data_sub2016$OtherNAICS<-ifelse(data_sub2016$NAICS==18,1,0)
+data_sub2016$PublicAdminNAICS<-ifelse(data_sub2016$NAICS==19,1,0)
+
+attach(data_sub2016)
+
+
+data_sub2016$Immigrant_UnivCertif2016<-Immigrant2016*UnivCertificate2016
+data_sub2016$Immigrant_BA2016<-Immigrant2016*BachelorsDegree2016
+data_sub2016$Immigrant_DiplomaAboveBA2016<-Immigrant2016*DiplomaAboveBA2016
+data_sub2016$Immigrant_MedicalDegree2016<-Immigrant2016*MedicalDegree2016
+data_sub2016$Immigrant_Masters2016<-Immigrant2016*Masters2016
+data_sub2016$Immigrant_Phd2016<-Immigrant2016*PhD2016
+
+
+
+
+Regression1_2016<-lm(log(Wages)~Immigrant_UnivCertif2016+Immigrant_DiplomaAboveBA2016
+                     +Immigrant_MedicalDegree2016+Immigrant_Masters2016
+                     +Immigrant_Phd2016+Newfoundland+PEI+NovaScotia
+                     +NewBrunswick+Quebec+Manitoba+Saskatchewan+
+                       Alberta+BC+NorthernCanada+MetroArea+Male+Divorced
+                     +Married+Separated+Widowed+CommonLaw+Immigrant2016+
+                       Immig_age0_4+Immig_age5_9+Immig_age10_14+Immig_age20_24+
+                       Immig_age25_29+Immig_age30_34+Immig_age35_39
+                     +Immig_age40_44+Immig_age45_49+Immig_age50_54+
+                       Immig_age55_59+Immig_age60andover+YRimmig1970s
+                     +YRimmig1980s+YRimmig1990s+
+                       YRimmig2000s+YRimmig2010s+Bilingual+UnivCertificate2016
+                     +DiplomaAboveBA2016+MedicalDegree2016+Masters2016+PhD2016+
+                       EducCIP+Visual_performingartsCIP+HumanitiesCIP
+                     +SocialsciCIP+Business_CommerceCIP+PhysicalandlifesciCIP
+                     +Math_computerCIP+ArchitectureCIP+AgricultureCIP
+                     +Health_parks_recreationCIP+Personal_ProtectCIP
+                     +SpecializedmiddlemanagerNOC+MiddlemanagementRetailNOC
+                     +MiddlemanagementTradesNOC+ProBusinessFinanceNOC
+                     +AdminFinanceSupervisorNOC+FinanceInsuranceNOC+
+                       OfficesupportNOC+TechnicaloccuptechscienceNOC+
+                       ProfessionalhealthNOC+TechnicalandassistinghealthNOC+
+                       ProfessionalEducNOC+ProfessionalLawNOC+ParaprofessionalLegalNOC
+                     +PublicProtectionNOC+ProfessionalArtandCultureNOC+RetailsupervisorNOC
+                     +ServicesupervisorNOC+SalesRepNOC+ServiceRepNOC+SalesSupportoccupNOC
+                     +ServicesupportNOC+IndustrialtradesNOC+MaintenancetradesNOC
+                     +ConstructionlabourNOC+HeavyequipmentoperationNOC+SupervisorsTechnicalNOC
+                     +SupervisorsManufacturingNOC+AssemblersManufacturingNOC+
+                       +MiningNAICS+UtilitiesNAICS+ConstructionNAICS+ManufacturingNAICS+
+                       WholesaleNAICS+RetailNAICS + TransportationNAICS+ InformationIndustriesNAICS + 
+                       Finance_InsuranceNAICS + RealEstateNAICS + Pro_TechServiceNAICS + 
+                       WasteManagementNAICS + EducNAICS + HealthCareNAICS + ArtsandEntertainmentNAICS+
+                       AccomodationandFoodNAICS+ OtherNAICS+ PublicAdminNAICS, data = data_sub2016)
+Wageregression2016<-summary(Regression1_2016)  
+Wageregression2016
+
+
+library(car)
+vif(Regression1_2016)
+
+library(lmtest)
+bptest(Regression1_2016)
+
