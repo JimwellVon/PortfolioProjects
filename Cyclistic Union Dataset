@@ -1,0 +1,144 @@
+SELECT 
+ ride_id,
+ rideable_type,
+ member_casual,
+ start_date,
+ start_time,
+ day_of_week,
+ ride_duration,
+ month
+ FROM `folkloric-rite-421317.Cyclistic_Google_CaseStudy.202309`
+UNION ALL
+
+ SELECT 
+ ride_id,
+ rideable_type,
+ member_casual,
+ start_date,
+ start_time,
+ day_of_week,
+ ride_duration,
+ month
+ FROM `folkloric-rite-421317.Cyclistic_Google_CaseStudy.202310`
+UNION ALL
+
+SELECT 
+ ride_id,
+ rideable_type,
+ member_casual,
+ start_date,
+ start_time,
+ day_of_week,
+ ride_duration,
+ month
+ FROM `folkloric-rite-421317.Cyclistic_Google_CaseStudy.202311`
+UNION ALL
+
+SELECT 
+ ride_id,
+ rideable_type,
+ member_casual,
+ start_date,
+ start_time,
+ day_of_week,
+ ride_duration,
+ month
+ FROM `folkloric-rite-421317.Cyclistic_Google_CaseStudy.202312`
+UNION ALL
+
+SELECT 
+ ride_id,
+ rideable_type,
+ member_casual,
+ start_date,
+ start_time,
+ day_of_week,
+ ride_duration,
+ month
+ FROM `folkloric-rite-421317.Cyclistic_Google_CaseStudy.202401`
+UNION ALL
+
+SELECT 
+ ride_id,
+ rideable_type,
+ member_casual,
+ start_date,
+ start_time,
+ day_of_week,
+ ride_duration,
+ month
+ FROM `folkloric-rite-421317.Cyclistic_Google_CaseStudy.202402`
+UNION ALL
+
+SELECT 
+ ride_id,
+ rideable_type,
+ member_casual,
+ start_date,
+ start_time,
+ day_of_week,
+ ride_duration,
+ month
+ FROM `folkloric-rite-421317.Cyclistic_Google_CaseStudy.202403`
+UNION ALL
+
+SELECT 
+ ride_id,
+ rideable_type,
+ member_casual,
+ start_date,
+ start_time,
+ day_of_week,
+ ride_duration,
+ month
+ FROM `folkloric-rite-421317.Cyclistic_Google_CaseStudy.202404`
+UNION ALL
+
+SELECT 
+ ride_id,
+ rideable_type,
+ member_casual,
+ start_date,
+ start_time,
+ day_of_week,
+ ride_duration,
+ month
+ FROM `folkloric-rite-421317.Cyclistic_Google_CaseStudy.202405`
+UNION ALL
+
+SELECT 
+ ride_id,
+ rideable_type,
+ member_casual,
+ start_date,
+ start_time,
+ day_of_week,
+ ride_duration,
+ month
+ FROM `folkloric-rite-421317.Cyclistic_Google_CaseStudy.202406`
+UNION ALL
+
+SELECT 
+ ride_id,
+ rideable_type,
+ member_casual,
+ start_date,
+ start_time,
+ day_of_week,
+ ride_duration,
+ month
+ FROM `folkloric-rite-421317.Cyclistic_Google_CaseStudy.202407`
+UNION ALL
+
+SELECT 
+ ride_id,
+ rideable_type,
+ member_casual,
+ start_date,
+ start_time,
+ day_of_week,
+ ride_duration,
+ month
+ FROM `folkloric-rite-421317.Cyclistic_Google_CaseStudy.202408`
+
+
